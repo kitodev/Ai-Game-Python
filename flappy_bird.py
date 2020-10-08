@@ -8,12 +8,12 @@ pygame.font.init()
 
 WIN_HEIGHT = 600
 WIN_WIDTH = 800
+GEN = 0
 
-pipe_img = pygame.transform.scale2x(pygame.image.load(os.path.join("images","pipe.png")).convert_alpha())
-
-bg_img = pygame.transform.scale(pygame.image.load(os.path.join("images","bg.png")).convert_alpha(), (600, 900))
+pipe_img = pygame.transform.scale2x(pygame.image.load(os.path.join("images","pipe.png")))
+bg_img = pygame.transform.scale2x(pygame.image.load(os.path.join("images","bg.png")))
 bird_images = [pygame.transform.scale2x(pygame.image.load(os.path.join("images","bird" + str(x) + ".png"))) for x in range(1,4)]
-base_img = pygame.transform.scale2x(pygame.image.load(os.path.join("images","base.png")).convert_alpha())
+base_img = pygame.transform.scale2x(pygame.image.load(os.path.join("images","base.png")))
 
 STAT_FONT = pygame.font.SysFont("comicsans", 50)
 
@@ -158,8 +158,10 @@ def draw_wind(win, bird, pipes, base):
         pipe.draw(win)
     
     text = STAT_FONT.render("Score: " + str(score), 1, (255, 255, 255))
-    
     win.blit(text, (WIN_WIDTH - 10 - text.get_width(), 10))
+
+    text = STAT_FONT.render("Gen: " + str(gen), 1, (255, 255, 255))
+    win.blit(text, (10, 10))
 
     base.draw(win)
     for bird in birds:
@@ -167,9 +169,11 @@ def draw_wind(win, bird, pipes, base):
     pygame.display.update()
 
 def main(genomes, config):
+    global GEN
+    GEN += 1
     nets = []
     ge = []
-    bird = []
+    birds = []
 
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -246,10 +250,10 @@ def main(genomes, config):
                 if bird.y + bird.img.get_height() >= 730 or bird.y < 0:
                     birds.pop(x)
                     nets.pop(x)
-                    ge.pop(x)
-            
+                    ge.pop(x)   
+        
         base.move()
-        draw_wind(win, bird, pipes, base, score)
+        draw_wind(win, bird, pipes, base, score, GEN)
 
 def run(config_path):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
